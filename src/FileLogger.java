@@ -8,8 +8,13 @@ public class FileLogger implements Logger{
 
 	FileWriter fileWriter;
 	
-	public FileLogger(String filePath) throws IOException {
-		fileWriter = new FileWriter(filePath, true);
+	public FileLogger(String filePath) {
+		try {
+			fileWriter = new FileWriter(filePath, true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 	

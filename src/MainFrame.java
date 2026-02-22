@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.io.IOException;
+
 import javax.swing.*;
 
 public class MainFrame extends JFrame {
@@ -39,7 +41,13 @@ public class MainFrame extends JFrame {
 
         // Add role selection screen (required entry point)
         contentPanel.add(createRoleSelectionPanel(), ROLE_SCREEN);
-
+        ClientForm clientForm = new ClientForm();
+        contentPanel.add(clientForm, CLIENT_SCREEN);
+        
+		
+		 Logger logger = new FileLogger("logs.txt");
+        OwnerForm ownerForm = new OwnerForm(this, logger);
+        contentPanel.add(ownerForm, OWNER_SCREEN);
         add(contentPanel, BorderLayout.CENTER);
 
         // Show first screen
@@ -55,7 +63,12 @@ public class MainFrame extends JFrame {
 
     }
 
-     //Role selection panel (Owner & Client)
+     
+    /*
+     * Redacted for now
+     * This is a tester panel now
+     */
+//Role selection panel (Owner & Client)
     private JPanel createRoleSelectionPanel() {
 
         JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10));
