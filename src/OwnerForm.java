@@ -21,7 +21,7 @@ public class OwnerForm {
         initComponents();
 
         backButton.addActionListener(e -> {
-            logger.info("OWNER clicked BACK");
+           // logger.info("OWNER clicked BACK");
             mainFrame.showScreen(MainFrame.ROLE_SCREEN);
         });
 
@@ -31,7 +31,7 @@ public class OwnerForm {
             vehicleModelTextField.setText("");
             vehicleYearTextField.setText("");
             residencyTimeTextField.setText("");
-            logger.info("OWNER clicked CLEAR");
+           // logger.info("OWNER clicked CLEAR");
         });
 
         submitButton.addActionListener(e -> {
@@ -54,7 +54,7 @@ public class OwnerForm {
                 year = Integer.parseInt(yearStr);
                 if (year < 1900 || year > 2100) throw new NumberFormatException();
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(panel1, "Vehicle Year must be a valid number (ex: 2018).");
+                JOptionPane.showMessageDialog(panel1, "Vehicle Year must be a valid number (ex: 2020).");
                 logger.warning("OWNER submit blocked: invalid year=" + yearStr);
                 return;
             }
