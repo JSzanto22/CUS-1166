@@ -1,15 +1,13 @@
 import javax.swing.*;
+import java.awt.*;
 
 public class OwnerForm {
     private JPanel panel1;
-
-
     private JTextField ownerIdTextField;
     private JTextField vehicleMakeTextField;
     private JTextField vehicleModelTextField;
     private JTextField vehicleYearTextField;
     private JTextField residencyTimeTextField;
-
     private JButton backButton;
     private JButton clearButton;
     private JButton submitButton;
@@ -20,6 +18,7 @@ public class OwnerForm {
     public OwnerForm(MainFrame mainFrame, Logger logger) {
         this.mainFrame = mainFrame;
         this.logger = logger;
+        initComponents();
 
         backButton.addActionListener(e -> {
             logger.info("OWNER clicked BACK");
@@ -72,6 +71,40 @@ public class OwnerForm {
 
             JOptionPane.showMessageDialog(panel1, "Owner form submitted and logged!");
         });
+    }
+
+    private void initComponents() {
+        panel1 = new JPanel(new BorderLayout(10, 10));
+        panel1.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JPanel fieldsPanel = new JPanel(new GridLayout(5, 2, 5, 5));
+        ownerIdTextField = new JTextField(20);
+        vehicleMakeTextField = new JTextField(20);
+        vehicleModelTextField = new JTextField(20);
+        vehicleYearTextField = new JTextField(20);
+        residencyTimeTextField = new JTextField(20);
+
+        fieldsPanel.add(new JLabel("Owner ID:"));
+        fieldsPanel.add(ownerIdTextField);
+        fieldsPanel.add(new JLabel("Vehicle Make:"));
+        fieldsPanel.add(vehicleMakeTextField);
+        fieldsPanel.add(new JLabel("Vehicle Model:"));
+        fieldsPanel.add(vehicleModelTextField);
+        fieldsPanel.add(new JLabel("Vehicle Year:"));
+        fieldsPanel.add(vehicleYearTextField);
+        fieldsPanel.add(new JLabel("Residency Time(minutes):"));
+        fieldsPanel.add(residencyTimeTextField);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        backButton = new JButton("Back");
+        clearButton = new JButton("Clear");
+        submitButton = new JButton("Submit");
+        buttonPanel.add(backButton);
+        buttonPanel.add(clearButton);
+        buttonPanel.add(submitButton);
+
+        panel1.add(fieldsPanel, BorderLayout.CENTER);
+        panel1.add(buttonPanel, BorderLayout.SOUTH);
     }
 
     public JPanel getPanel() {

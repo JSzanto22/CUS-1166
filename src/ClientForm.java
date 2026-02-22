@@ -1,8 +1,5 @@
 import javax.swing.*;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.awt.*;
 
 public class ClientForm {
     private JPanel panel1;
@@ -18,85 +15,94 @@ public class ClientForm {
     private JButton clearButton;
     private JButton submitButton;
 
-    public ClientForm() {
-        // Back Button - navigate to SelectRole panel
-        backButton.addActionListener(e -> {
-            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(panel1);
-            frame.setTitle("VCRTS - Select Role");
-            frame.setContentPane(new SelectRole().getPanel());
-            frame.pack();
-            frame.setLocationRelativeTo(null);
-        });
+    private final MainFrame mainFrame;
+    private final Logger logger;
+
+    public ClientForm(MainFrame mainFrame, Logger logger) {
+        this.mainFrame = mainFrame;
+        this.logger = logger;
+        initComponents();
+
+        // Back Button - go back to role screen (CardLayout)
+        backButton.addActionListener(e -> mainFrame.showScreen(MainFrame.ROLE_SCREEN));
 
         // Clear Button - clear all fields
-        clearButton.addActionListener(e -> {
-            clientIDTextField.setText("");
-            ClientNameTextField.setText("");
-            jobDurationTextField.setText("");
-            jobDeadlineTextField.setText("");
-        });
+        clearButton.addActionListener(e -> clearFields());
 
-        // Submit Button - validate & save data
-        submitButton.addActionListener(e -> saveClientData());
+        // Submit Button - validate & log data
+        submitButton.addActionListener(e -> submitClientJob());
     }
 
-    private void saveClientData() {
+    private void clearFields() {
+        clientIDTextField.setText("");
+        ClientNameTextField.setText("");
+        jobDurationTextField.setText("");
+        jobDeadlineTextField.setText("");
+    }
+
+    private void submitClientJob() {
         String clientID = clientIDTextField.getText().trim();
         String clientName = ClientNameTextField.getText().trim();
         String duration = jobDurationTextField.getText().trim();
         String deadline = jobDeadlineTextField.getText().trim();
 
-        // Validate fields
+        //  box check
         if (clientID.isEmpty() || clientName.isEmpty() || duration.isEmpty() || deadline.isEmpty()) {
             JOptionPane.showMessageDialog(panel1,
                     "Please fill all fields!",
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
+
+            logger.warning("CLIENT_SUBMIT blocked: missing fields");
             return;
         }
 
-        try {
-            FileWriter writer = new FileWriter("client_transactions.txt", true);
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            String timestamp = LocalDateTime.now().format(dtf);
+        //  submit
+        logger.info("CLIENT_SUBMIT clientId=" + clientID +
+                " name=" + clientName +
+                " durationHrs=" + duration +
+                " deadline=" + deadline);
 
-            writer.write("----- Client Submission -----\n");
-            writer.write("Timestamp: " + timestamp + "\n");
-            writer.write("Client ID: " + clientID + "\n");
-            writer.write("Client Name: " + clientName + "\n");
-            writer.write("Job Duration: " + duration + " hrs\n");
-            writer.write("Job Deadline: " + deadline + "\n\n");
+        JOptionPane.showMessageDialog(panel1, "Client job submitted (logged) successfully!");
+        clearFields();
+    }
 
-            writer.close();
+    private void initComponents() {
+        panel1 = new JPanel(new BorderLayout(10, 10));
+        panel1.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-            JOptionPane.showMessageDialog(panel1,
-                    "Client job submitted successfully!");
+        JPanel fieldsPanel = new JPanel(new GridLayout(4, 2, 5, 5));
+        ClientID = new JLabel("Client ID:");
+        clientIDTextField = new JTextField(20);
+        ClientName = new JLabel("Client Name:");
+        ClientNameTextField = new JTextField(20);
+        jobDuration = new JLabel("Job Duration (minutes):");
+        jobDurationTextField = new JTextField(20);
+        JobDeadline = new JLabel("Job Deadline:");
+        jobDeadlineTextField = new JTextField(20);
 
-            // Clear fields after successful submission
-            clientIDTextField.setText("");
-            ClientNameTextField.setText("");
-            jobDurationTextField.setText("");
-            jobDeadlineTextField.setText("");
+        fieldsPanel.add(ClientID);
+        fieldsPanel.add(clientIDTextField);
+        fieldsPanel.add(ClientName);
+        fieldsPanel.add(ClientNameTextField);
+        fieldsPanel.add(jobDuration);
+        fieldsPanel.add(jobDurationTextField);
+        fieldsPanel.add(JobDeadline);
+        fieldsPanel.add(jobDeadlineTextField);
 
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(panel1,
-                    "Error saving data!",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        backButton = new JButton("Back");
+        clearButton = new JButton("Clear");
+        submitButton = new JButton("Submit");
+        buttonPanel.add(backButton);
+        buttonPanel.add(clearButton);
+        buttonPanel.add(submitButton);
+
+        panel1.add(fieldsPanel, BorderLayout.CENTER);
+        panel1.add(buttonPanel, BorderLayout.SOUTH);
     }
 
     public JPanel getPanel() {
         return panel1;
-    }
-
-    // Optional: For testing the panel standalone
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("VCRTS - Client Panel");
-        frame.setContentPane(new ClientForm().getPanel());
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
     }
 }
