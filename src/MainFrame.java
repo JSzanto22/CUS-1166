@@ -37,7 +37,7 @@ public class MainFrame extends JFrame {
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
 
-        Logger logger = new FileLogger("logs.txt");
+        Logger logger = new FileLogger("src/logs.txt");
 
         contentPanel.add(createRoleSelectionPanel(), ROLE_SCREEN);
         contentPanel.add(new OwnerForm(this, logger).getPanel(), OWNER_SCREEN);

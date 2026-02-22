@@ -26,11 +26,7 @@ public class OwnerForm {
         });
 
         clearButton.addActionListener(e -> {
-            ownerIdTextField.setText("");
-            vehicleMakeTextField.setText("");
-            vehicleModelTextField.setText("");
-            vehicleYearTextField.setText("");
-            residencyTimeTextField.setText("");
+            clearFields();
            // logger.info("OWNER clicked CLEAR");
         });
 
@@ -70,7 +66,16 @@ public class OwnerForm {
             logger.info(logMsg);
 
             JOptionPane.showMessageDialog(panel1, "Owner form submitted and logged!");
+            clearFields();
         });
+    }
+    
+    private void clearFields() {
+    	ownerIdTextField.setText("");
+    	vehicleMakeTextField.setText("");
+    	vehicleModelTextField.setText("");
+    	vehicleYearTextField.setText("");
+    	residencyTimeTextField.setText("");
     }
 
     private void initComponents() {
