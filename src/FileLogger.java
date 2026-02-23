@@ -6,7 +6,7 @@ import java.time.ZoneId;
 
 public class FileLogger implements Logger{
 
-	FileWriter fileWriter;
+	private FileWriter fileWriter;
 	
 	public FileLogger(String filePath) {
 		try {

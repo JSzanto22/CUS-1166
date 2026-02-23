@@ -7,6 +7,7 @@ public class MainFrame extends JFrame {
     public static final String ROLE_SCREEN = "role";
     public static final String OWNER_SCREEN = "owner";
     public static final String CLIENT_SCREEN = "client";
+    public static final String INTRO_SCREEN = "intro";
 
     private JPanel contentPanel;
     private CardLayout cardLayout;
@@ -38,7 +39,8 @@ public class MainFrame extends JFrame {
         contentPanel = new JPanel(cardLayout);
 
         Logger logger = new FileLogger("src/logs.txt");
-
+        
+        contentPanel.add(new IntroPanel(this), INTRO_SCREEN);
         contentPanel.add(createRoleSelectionPanel(), ROLE_SCREEN);
         contentPanel.add(new OwnerForm(this, logger).getPanel(), OWNER_SCREEN);
         contentPanel.add(new ClientForm(this, logger).getPanel(), CLIENT_SCREEN);
@@ -46,7 +48,7 @@ public class MainFrame extends JFrame {
         add(contentPanel, BorderLayout.CENTER);
 
         // Show first screen
-        showScreen(ROLE_SCREEN);
+        showScreen(INTRO_SCREEN);
 
         setVisible(true);
     }
