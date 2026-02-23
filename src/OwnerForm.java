@@ -1,3 +1,11 @@
+/* Project: Lab9
+ * Class: OwnerForm.java
+ * Author: Thurman Patterson
+ * Date: Feb 22 2026
+ * This program creates a panel for owner info and then sends it to the logger
+ */
+
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -65,7 +73,7 @@ public class OwnerForm {
 
             logger.info(logMsg);
 
-            JOptionPane.showMessageDialog(panel1, "Owner form submitted and logged!");
+            JOptionPane.showMessageDialog(panel1, "Owner form submitted");
             clearFields();
         });
     }
