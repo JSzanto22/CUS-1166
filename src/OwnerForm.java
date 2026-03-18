@@ -87,37 +87,76 @@ public class OwnerForm {
     }
 
     private void initComponents() {
-        panel1 = new JPanel(new BorderLayout(10, 10));
-        panel1.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel1 = new JPanel(new GridBagLayout());
+        panel1.setBackground(new Color(0x6F, 0xA6, 0x8C));
+        panel1.setBorder(BorderFactory.createEmptyBorder(18, 18, 18, 18));
 
-        JPanel fieldsPanel = new JPanel(new GridLayout(5, 2, 5, 5));
+        Color cardFill = new Color(0xF5, 0xF8, 0xF6);   // light gray-green
+        Color cardBorder = new Color(0xD7, 0xE3, 0xDD); // subtle border
+        JPanel card = new JPanel(new BorderLayout(12, 12));
+        card.setBackground(cardFill);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(cardBorder),
+                BorderFactory.createEmptyBorder(16, 16, 16, 16)
+        ));
+
+        JLabel title = new JLabel("Vehicle Owner Registration");
+        title.setFont(title.getFont().deriveFont(Font.BOLD, 18f));
+        title.setForeground(new Color(0x26, 0x32, 0x38));
+        card.add(title, BorderLayout.NORTH);
+
+        JPanel fieldsPanel = new JPanel(new GridLayout(5, 2, 10, 10));
+        fieldsPanel.setBackground(cardFill);
         ownerIdTextField = new JTextField(20);
         vehicleMakeTextField = new JTextField(20);
         vehicleModelTextField = new JTextField(20);
         vehicleYearTextField = new JTextField(20);
         residencyTimeTextField = new JTextField(20);
 
-        fieldsPanel.add(new JLabel("Owner ID:"));
+        JLabel l1 = new JLabel("Owner ID:");
+        l1.setHorizontalAlignment(SwingConstants.RIGHT);
+        fieldsPanel.add(l1);
         fieldsPanel.add(ownerIdTextField);
-        fieldsPanel.add(new JLabel("Vehicle Make:"));
+        JLabel l2 = new JLabel("Vehicle Make:");
+        l2.setHorizontalAlignment(SwingConstants.RIGHT);
+        fieldsPanel.add(l2);
         fieldsPanel.add(vehicleMakeTextField);
-        fieldsPanel.add(new JLabel("Vehicle Model:"));
+        JLabel l3 = new JLabel("Vehicle Model:");
+        l3.setHorizontalAlignment(SwingConstants.RIGHT);
+        fieldsPanel.add(l3);
         fieldsPanel.add(vehicleModelTextField);
-        fieldsPanel.add(new JLabel("Vehicle Year:"));
+        JLabel l4 = new JLabel("Vehicle Year:");
+        l4.setHorizontalAlignment(SwingConstants.RIGHT);
+        fieldsPanel.add(l4);
         fieldsPanel.add(vehicleYearTextField);
-        fieldsPanel.add(new JLabel("Residency Time(minutes):"));
+        JLabel l5 = new JLabel("Residency Time (minutes):");
+        l5.setHorizontalAlignment(SwingConstants.RIGHT);
+        fieldsPanel.add(l5);
         fieldsPanel.add(residencyTimeTextField);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        buttonPanel.setBackground(cardFill);
+        Dimension btn = new Dimension(120, 36);
         backButton = new JButton("Back");
+        backButton.setPreferredSize(btn);
         clearButton = new JButton("Clear");
+        clearButton.setPreferredSize(btn);
         submitButton = new JButton("Submit");
+        submitButton.setPreferredSize(btn);
+        submitButton.setFocusPainted(false);
         buttonPanel.add(backButton);
         buttonPanel.add(clearButton);
         buttonPanel.add(submitButton);
 
-        panel1.add(fieldsPanel, BorderLayout.CENTER);
-        panel1.add(buttonPanel, BorderLayout.SOUTH);
+        card.add(fieldsPanel, BorderLayout.CENTER);
+        card.add(buttonPanel, BorderLayout.SOUTH);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.NONE;
+        panel1.add(card, gbc);
     }
 
     public JPanel getPanel() {

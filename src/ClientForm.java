@@ -68,17 +68,37 @@ public class ClientForm {
     }
 
     private void initComponents() {
-        panel1 = new JPanel(new BorderLayout(10, 10));
-        panel1.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel1 = new JPanel(new GridBagLayout());
+        panel1.setBackground(new Color(0x6F, 0xA6, 0x8C));
+        panel1.setBorder(BorderFactory.createEmptyBorder(18, 18, 18, 18));
 
-        JPanel fieldsPanel = new JPanel(new GridLayout(4, 2, 5, 5));
+        Color cardFill = new Color(0xF5, 0xF8, 0xF6);   // light gray-green
+        Color cardBorder = new Color(0xD7, 0xE3, 0xDD); // subtle border
+        JPanel card = new JPanel(new BorderLayout(12, 12));
+        card.setBackground(cardFill);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(cardBorder),
+                BorderFactory.createEmptyBorder(16, 16, 16, 16)
+        ));
+
+        JLabel title = new JLabel("Client Job Submission");
+        title.setFont(title.getFont().deriveFont(Font.BOLD, 18f));
+        title.setForeground(new Color(0x26, 0x32, 0x38));
+        card.add(title, BorderLayout.NORTH);
+
+        JPanel fieldsPanel = new JPanel(new GridLayout(4, 2, 10, 10));
+        fieldsPanel.setBackground(cardFill);
         ClientID = new JLabel("Client ID:");
+        ClientID.setHorizontalAlignment(SwingConstants.RIGHT);
         clientIDTextField = new JTextField(20);
         ClientName = new JLabel("Client Name:");
+        ClientName.setHorizontalAlignment(SwingConstants.RIGHT);
         ClientNameTextField = new JTextField(20);
         jobDuration = new JLabel("Job Duration (minutes):");
+        jobDuration.setHorizontalAlignment(SwingConstants.RIGHT);
         jobDurationTextField = new JTextField(20);
         JobDeadline = new JLabel("Job Deadline:");
+        JobDeadline.setHorizontalAlignment(SwingConstants.RIGHT);
         jobDeadlineTextField = new JTextField(20);
 
         fieldsPanel.add(ClientID);
@@ -90,16 +110,29 @@ public class ClientForm {
         fieldsPanel.add(JobDeadline);
         fieldsPanel.add(jobDeadlineTextField);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        buttonPanel.setBackground(cardFill);
+        Dimension btn = new Dimension(120, 36);
         backButton = new JButton("Back");
+        backButton.setPreferredSize(btn);
         clearButton = new JButton("Clear");
+        clearButton.setPreferredSize(btn);
         submitButton = new JButton("Submit");
+        submitButton.setPreferredSize(btn);
+        submitButton.setFocusPainted(false);
         buttonPanel.add(backButton);
         buttonPanel.add(clearButton);
         buttonPanel.add(submitButton);
 
-        panel1.add(fieldsPanel, BorderLayout.CENTER);
-        panel1.add(buttonPanel, BorderLayout.SOUTH);
+        card.add(fieldsPanel, BorderLayout.CENTER);
+        card.add(buttonPanel, BorderLayout.SOUTH);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.NONE;
+        panel1.add(card, gbc);
     }
 
     public JPanel getPanel() {
