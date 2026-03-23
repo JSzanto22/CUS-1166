@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Simple read-only view of the application log (same path as {@link FileLogger}).
+read only
  */
 public class AdminPanel extends JPanel {
 
