@@ -1,6 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-//a
+
 public class ClientForm {
     private JPanel panel1;
     private JLabel ClientID;
@@ -62,13 +62,6 @@ public class ClientForm {
                 " name=" + clientName +
                 " durationHrs=" + duration +
                 " deadline=" + deadline);
-
-        // Create and initialize progress report
-        String reportId = "PR_" + clientID;
-        ProgressReport report = new ProgressReport(reportId, clientID);
-        report.updateStatus("in progress");
-        report.updateProgress(0.0);
-        mainFrame.addProgressReport(clientID, report);
 
         JOptionPane.showMessageDialog(panel1, "Client job submitted (logged) successfully!");
         clearFields();
