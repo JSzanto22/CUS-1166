@@ -67,6 +67,10 @@ public class VehicularCloudController extends ComputationNode{
 	        activeJobs.add(job);
 	    }
 	}
+
+	public List<Job> getActiveJobs() {
+	    return new ArrayList<>(activeJobs);
+	}
 	
 	public int computeCompletionTime() {
 		int total = 0;

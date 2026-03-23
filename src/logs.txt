@@ -1,3 +1,6 @@
 WARNING 2026-03-18T18:51:27.841412Z CLIENT_SUBMIT blocked: missing fields
 WARNING 2026-03-22T19:11:34.543946Z OWNER submit blocked: missing fields
 INFO 2026-03-22T19:11:45.661314Z OWNER_SUBMIT | ownerId=ksjfbv;ksjb, make=sdfjnvbsjhd, model=fsdvjlhb, year=2005, residencyTime=25
+WARNING 2026-03-23T03:44:49.269442Z OWNER submit blocked: invalid year=adsfsdgsdg
+INFO 2026-03-23T03:45:00.316568Z OWNER_SUBMIT | ownerId=dafjgnfsdg, make=sdkgfjnsdk, model=sdfgsdg, year=2010, residencyTime=2010
+INFO 2026-03-23T03:45:10.476930Z CLIENT_SUBMIT clientId=fsdgsfdgbg name=bsdfsdg durationMinutes=345353 deadline=324

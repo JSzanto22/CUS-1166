@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
 read onlyaa
@@ -114,10 +115,38 @@ public class AdminPanel extends JPanel {
     }
 
     private void showCompletionTime() {
-        int totalMinutes = vcController.computeCompletionTime();
+        List<Job> jobs = vcController.getActiveJobs();
+        if (jobs.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No jobs in the queue yet.",
+                    "Queue Completion Time",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Job ID\tDuration(min)\tCompletion(min)\n");
+
+        int running = 0;
+        for (Job job : jobs) {
+            running += job.getDuration();
+            sb.append(job.getJobId())
+                    .append("\t")
+                    .append(job.getDuration())
+                    .append("\t\t")
+                    .append(running)
+                    .append("\n");
+        }
+
+        sb.append("\nTotal completion time: ")
+                .append(vcController.computeCompletionTime())
+                .append(" minutes");
+
         JOptionPane.showMessageDialog(
                 this,
-                "Total completion time (current queue): " + totalMinutes + " minutes",
+                sb.toString(),
                 "Queue Completion Time",
                 JOptionPane.INFORMATION_MESSAGE
         );
