@@ -148,14 +148,21 @@ public class OwnerForm {
         buttonPanel.add(clearButton);
         buttonPanel.add(submitButton);
 
-        card.add(fieldsPanel, BorderLayout.CENTER);
+        JPanel formBody = new JPanel(new BorderLayout());
+        formBody.setOpaque(false);
+        formBody.add(fieldsPanel, BorderLayout.NORTH);
+        card.add(formBody, BorderLayout.CENTER);
         card.add(buttonPanel, BorderLayout.SOUTH);
 
+        // Fill the screen area so the card isn't taller than the viewport (which clips the bottom
+        // and can hide the Submit row on the taller owner form).
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.fill = GridBagConstraints.NONE;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1;
+        gbc.weighty = 1;
         panel1.add(card, gbc);
     }
 

@@ -8,6 +8,7 @@ public class MainFrame extends JFrame {
     public static final String OWNER_SCREEN = "owner";
     public static final String CLIENT_SCREEN = "client";
     public static final String INTRO_SCREEN = "intro";
+    public static final String ADMIN_SCREEN = "admin";
     private static final Color APP_BG = new Color(0x6F, 0xA6, 0x8C); // #6FA68C
     private static final Font APP_FONT = pickAppFont();
 
@@ -56,6 +57,7 @@ public class MainFrame extends JFrame {
         contentPanel.add(createRoleSelectionPanel(), ROLE_SCREEN);
         contentPanel.add(new OwnerForm(this, logger).getPanel(), OWNER_SCREEN);
         contentPanel.add(new ClientForm(this, logger).getPanel(), CLIENT_SCREEN);
+        contentPanel.add(new AdminPanel(this), ADMIN_SCREEN);
 
         add(contentPanel, BorderLayout.CENTER);
 
@@ -113,19 +115,26 @@ public class MainFrame extends JFrame {
 
         JButton ownerButton = new JButton("Vehicle Owner");
         JButton clientButton = new JButton("Client");
+        JButton adminButton = new JButton("Admin");
         Dimension buttonSize = new Dimension(200, 40);
         ownerButton.setPreferredSize(buttonSize);
         clientButton.setPreferredSize(buttonSize);
+        adminButton.setPreferredSize(buttonSize);
         ownerButton.setForeground(Color.BLACK);
         clientButton.setForeground(Color.BLACK);
+        adminButton.setForeground(Color.BLACK);
         ownerButton.setBackground(Color.WHITE);
         clientButton.setBackground(Color.WHITE);
+        adminButton.setBackground(Color.WHITE);
         ownerButton.setOpaque(true);
         clientButton.setOpaque(true);
+        adminButton.setOpaque(true);
         ownerButton.setContentAreaFilled(true);
         clientButton.setContentAreaFilled(true);
+        adminButton.setContentAreaFilled(true);
         ownerButton.setFocusPainted(false);
         clientButton.setFocusPainted(false);
+        adminButton.setFocusPainted(false);
 
         // Navigation actions
         ownerButton.addActionListener(e ->
@@ -135,6 +144,8 @@ public class MainFrame extends JFrame {
         clientButton.addActionListener(e ->
                 showScreen(CLIENT_SCREEN)
         );
+
+        adminButton.addActionListener(e -> showScreen(ADMIN_SCREEN));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -152,6 +163,10 @@ public class MainFrame extends JFrame {
         gbc.gridy = 2;
         gbc.insets = new Insets(10, 10, 10, 10);
         panel.add(clientButton, gbc);
+
+        gbc.gridy = 3;
+        gbc.insets = new Insets(10, 10, 10, 10);
+        panel.add(adminButton, gbc);
 
         return panel;
     }

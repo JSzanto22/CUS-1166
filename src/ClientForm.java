@@ -124,14 +124,20 @@ public class ClientForm {
         buttonPanel.add(clearButton);
         buttonPanel.add(submitButton);
 
-        card.add(fieldsPanel, BorderLayout.CENTER);
+        // NORTH keeps fields at natural height; extra space stays below title / above buttons.
+        JPanel formBody = new JPanel(new BorderLayout());
+        formBody.setOpaque(false);
+        formBody.add(fieldsPanel, BorderLayout.NORTH);
+        card.add(formBody, BorderLayout.CENTER);
         card.add(buttonPanel, BorderLayout.SOUTH);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.fill = GridBagConstraints.NONE;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1;
+        gbc.weighty = 1;
         panel1.add(card, gbc);
     }
 
