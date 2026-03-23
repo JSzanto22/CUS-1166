@@ -33,7 +33,7 @@ public class Vehicle extends ComputationNode {
         return currentJob;
     }
 
-    public void setJob(Job job) {
+    public void setCurrentJob(Job job) {
         this.currentJob = job;
     }
 
