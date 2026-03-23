@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDateTime;
 
 public class ClientForm {
     private JPanel panel1;
@@ -17,10 +18,12 @@ public class ClientForm {
 
     private final MainFrame mainFrame;
     private final Logger logger;
+    private final VehicularCloudController vcController;
 
-    public ClientForm(MainFrame mainFrame, Logger logger) {
+    public ClientForm(MainFrame mainFrame, Logger logger, VehicularCloudController vcController) {
         this.mainFrame = mainFrame;
         this.logger = logger;
+        this.vcController = vcController;
         initComponents();
 
         // Back Button - go back to role screen (CardLayout)
@@ -57,10 +60,27 @@ public class ClientForm {
             return;
         }
 
+        int durationMinutes;
+        try {
+            durationMinutes = Integer.parseInt(duration);
+            if (durationMinutes <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(panel1,
+                    "Job Duration must be a valid positive number of minutes.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            logger.warning("CLIENT_SUBMIT blocked: invalid duration=" + duration);
+            return;
+        }
+
+        String jobId = clientID + "-" + System.currentTimeMillis();
+        Job job = new Job(jobId, "PENDING", durationMinutes, LocalDateTime.now());
+        vcController.addJob(job);
+
         //  submit
         logger.info("CLIENT_SUBMIT clientId=" + clientID +
                 " name=" + clientName +
-                " durationHrs=" + duration +
+                " durationMinutes=" + durationMinutes +
                 " deadline=" + deadline);
 
         JOptionPane.showMessageDialog(panel1, "Client job submitted (logged) successfully!");

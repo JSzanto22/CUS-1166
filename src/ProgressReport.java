@@ -89,7 +89,7 @@ public class ProgressReport {
     }
 
     public void createCheckpoint() {
-        Checkpoint checkpoint = new Checkpoint(reportId, LocalDateTime.now(), this);
+        Checkpoint checkpoint = new Checkpoint(reportId, LocalDateTime.now(), getSummary());
         checkpoint.saveState();
     }
 }

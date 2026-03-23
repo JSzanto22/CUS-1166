@@ -1,5 +1,5 @@
 import java.util.List;
-import java.util.ListIterator;
+import java.util.ArrayList;
 
 public class VehicularCloudController extends ComputationNode{
 	
@@ -41,7 +41,7 @@ public class VehicularCloudController extends ComputationNode{
 		}
 	}
 	
-	public void recruitVehicle(Job job, Checkpoint checkpoint) {
+	public Vehicle recruitVehicle(Job job, Checkpoint checkpoint) {
 	    for (Vehicle v : vehicles) {
 	        if (v.getCurrentJob() == null) {
 	            v.setCurrentJob(job);
@@ -60,6 +60,12 @@ public class VehicularCloudController extends ComputationNode{
 	public void transferCompletedJob(Job job) {
 	    resultServer.storeResult(job);
 	    activeJobs.remove(job);
+	}
+
+	public void addJob(Job job) {
+	    if (job != null) {
+	        activeJobs.add(job);
+	    }
 	}
 	
 	public int computeCompletionTime() {

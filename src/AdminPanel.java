@@ -19,10 +19,12 @@ public class AdminPanel extends JPanel {
     private static final Color CARD_FILL = new Color(0xF5, 0xF8, 0xF6);
     private static final Color CARD_BORDER = new Color(0xD7, 0xE3, 0xDD);
 
+    private final VehicularCloudController vcController;
     private JTextArea logArea;
     private JLabel statusLabel;
 
-    public AdminPanel(MainFrame mainFrame) {
+    public AdminPanel(MainFrame mainFrame, VehicularCloudController vcController) {
+        this.vcController = vcController;
         setLayout(new GridBagLayout());
         setBackground(APP_BG);
         setBorder(new EmptyBorder(18, 18, 18, 18));
@@ -62,11 +64,16 @@ public class AdminPanel extends JPanel {
         refreshButton.setPreferredSize(btn);
         refreshButton.setFocusPainted(false);
         refreshButton.addActionListener(e -> loadLog());
+        JButton completionButton = new JButton("Completion Time");
+        completionButton.setPreferredSize(new Dimension(160, 36));
+        completionButton.setFocusPainted(false);
+        completionButton.addActionListener(e -> showCompletionTime());
         JButton backButton = new JButton("Back");
         backButton.setPreferredSize(btn);
         backButton.setFocusPainted(false);
         backButton.addActionListener(e -> mainFrame.showScreen(MainFrame.ROLE_SCREEN));
         buttonRow.add(refreshButton);
+        buttonRow.add(completionButton);
         buttonRow.add(backButton);
 
         JPanel centerBlock = new JPanel(new BorderLayout(0, 10));
@@ -104,5 +111,15 @@ public class AdminPanel extends JPanel {
             logArea.setText("Could not read log: " + ex.getMessage());
             statusLabel.setText("Error reading " + LOG_PATH);
         }
+    }
+
+    private void showCompletionTime() {
+        int totalMinutes = vcController.computeCompletionTime();
+        JOptionPane.showMessageDialog(
+                this,
+                "Total completion time (current queue): " + totalMinutes + " minutes",
+                "Queue Completion Time",
+                JOptionPane.INFORMATION_MESSAGE
+        );
     }
 }

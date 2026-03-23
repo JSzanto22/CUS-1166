@@ -14,6 +14,7 @@ public class MainFrame extends JFrame {
 
     private JPanel contentPanel;
     private CardLayout cardLayout;
+    private VehicularCloudController vcController;
 
     public MainFrame() {
 
@@ -52,12 +53,14 @@ public class MainFrame extends JFrame {
         contentPanel.setBackground(APP_BG);
 
         Logger logger = new FileLogger("src/logs.txt");
+        ResultServer resultServer = new ResultServer("RS-1");
+        vcController = new VehicularCloudController("VC-1", "ACTIVE", resultServer);
         
         contentPanel.add(new IntroPanel(this), INTRO_SCREEN);
         contentPanel.add(createRoleSelectionPanel(), ROLE_SCREEN);
         contentPanel.add(new OwnerForm(this, logger).getPanel(), OWNER_SCREEN);
-        contentPanel.add(new ClientForm(this, logger).getPanel(), CLIENT_SCREEN);
-        contentPanel.add(new AdminPanel(this), ADMIN_SCREEN);
+        contentPanel.add(new ClientForm(this, logger, vcController).getPanel(), CLIENT_SCREEN);
+        contentPanel.add(new AdminPanel(this, vcController), ADMIN_SCREEN);
 
         add(contentPanel, BorderLayout.CENTER);
 

@@ -18,6 +18,11 @@ public class Owner {
         return ownerID;
     }
 
+    // Compatibility for classes expecting a generic "name" getter.
+    public String getName() {
+        return ownerID;
+    }
+
 
     public void setOwnerID(String ownerID) {
         this.ownerID = ownerID;
