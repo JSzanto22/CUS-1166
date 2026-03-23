@@ -87,4 +87,9 @@ public class ProgressReport {
     public LocalDateTime getEndTime() {
         return endTime;
     }
+
+    public void createCheckpoint() {
+        Checkpoint checkpoint = new Checkpoint(reportId, LocalDateTime.now(), this);
+        checkpoint.saveState();
+    }
 }

@@ -9,9 +9,9 @@ public class MainFrame extends JFrame {
     public static final String ROLE_SCREEN = "role";
     public static final String OWNER_SCREEN = "owner";
     public static final String CLIENT_SCREEN = "client";
+    public static final String PROGRESS_SCREEN = "progress";
     public static final String INTRO_SCREEN = "intro";
     public static final String ADMIN_SCREEN = "admin";
-    public static final String PROGRESS_SCREEN = "progress";
     private static final Color APP_BG = new Color(0x6F, 0xA6, 0x8C); // #6FA68C
     private static final Font APP_FONT = pickAppFont();
 
@@ -56,12 +56,17 @@ public class MainFrame extends JFrame {
         contentPanel = new JPanel(cardLayout);
         contentPanel.setBackground(APP_BG);
 
+        Logger logger = new FileLogger("src/logs.txt");
+        
         contentPanel.add(new IntroPanel(this), INTRO_SCREEN);
         contentPanel.add(createRoleSelectionPanel(), ROLE_SCREEN);
         contentPanel.add(new OwnerForm(this, logger).getPanel(), OWNER_SCREEN);
         contentPanel.add(new ClientForm(this, logger).getPanel(), CLIENT_SCREEN);
+<<<<<<< HEAD
         contentPanel.add(createProgressPanel(), PROGRESS_SCREEN);
+=======
         contentPanel.add(new AdminPanel(this), ADMIN_SCREEN);
+>>>>>>> b6cc2ed6ae729672371b40a684a66c689a9d7c1e
 
         add(contentPanel, BorderLayout.CENTER);
 
@@ -107,10 +112,15 @@ public class MainFrame extends JFrame {
      * Redacted for now
      * This is a tester panel now
      */
+//Role selection panel (Owner & Client)
     private JPanel createRoleSelectionPanel() {
 
+<<<<<<< HEAD
+        JPanel panel = new JPanel(new GridLayout(4, 1, 10, 10));
+=======
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(APP_BG);
+>>>>>>> b6cc2ed6ae729672371b40a684a66c689a9d7c1e
 
         JLabel label = new JLabel("Select User Type", SwingConstants.CENTER);
         label.setForeground(Color.WHITE);
@@ -118,33 +128,30 @@ public class MainFrame extends JFrame {
 
         JButton ownerButton = new JButton("Vehicle Owner");
         JButton clientButton = new JButton("Client");
-        JButton adminButton = new JButton("Admin");
+<<<<<<< HEAD
         JButton progressButton = new JButton("View Progress Reports");
+=======
+        JButton adminButton = new JButton("Admin");
         Dimension buttonSize = new Dimension(200, 40);
         ownerButton.setPreferredSize(buttonSize);
         clientButton.setPreferredSize(buttonSize);
         adminButton.setPreferredSize(buttonSize);
-        progressButton.setPreferredSize(buttonSize);
         ownerButton.setForeground(Color.BLACK);
         clientButton.setForeground(Color.BLACK);
         adminButton.setForeground(Color.BLACK);
-        progressButton.setForeground(Color.BLACK);
         ownerButton.setBackground(Color.WHITE);
         clientButton.setBackground(Color.WHITE);
         adminButton.setBackground(Color.WHITE);
-        progressButton.setBackground(Color.WHITE);
         ownerButton.setOpaque(true);
         clientButton.setOpaque(true);
         adminButton.setOpaque(true);
-        progressButton.setOpaque(true);
         ownerButton.setContentAreaFilled(true);
         clientButton.setContentAreaFilled(true);
         adminButton.setContentAreaFilled(true);
-        progressButton.setContentAreaFilled(true);
         ownerButton.setFocusPainted(false);
         clientButton.setFocusPainted(false);
         adminButton.setFocusPainted(false);
-        progressButton.setFocusPainted(false);
+>>>>>>> b6cc2ed6ae729672371b40a684a66c689a9d7c1e
 
         // Navigation actions
         ownerButton.addActionListener(e ->
@@ -155,11 +162,17 @@ public class MainFrame extends JFrame {
                 showScreen(CLIENT_SCREEN)
         );
 
-        adminButton.addActionListener(e -> showScreen(ADMIN_SCREEN));
-        
+<<<<<<< HEAD
         progressButton.addActionListener(e ->
                 showScreen(PROGRESS_SCREEN)
         );
+
+        panel.add(label);
+        panel.add(ownerButton);
+        panel.add(clientButton);
+        panel.add(progressButton);
+=======
+        adminButton.addActionListener(e -> showScreen(ADMIN_SCREEN));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -181,13 +194,12 @@ public class MainFrame extends JFrame {
         gbc.gridy = 3;
         gbc.insets = new Insets(10, 10, 10, 10);
         panel.add(adminButton, gbc);
-
-        gbc.gridy = 4;
-        gbc.insets = new Insets(10, 10, 10, 10);
-        panel.add(progressButton, gbc);
+>>>>>>> b6cc2ed6ae729672371b40a684a66c689a9d7c1e
 
         return panel;
     }
+
+    private JPanel createProgressPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
         JLabel label = new JLabel("Enter Job ID to view/update progress report", SwingConstants.CENTER);
