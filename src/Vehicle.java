@@ -127,7 +127,7 @@ public class Vehicle extends ComputationNode {
         return "Vehicle{" +
                 "id='" + getId() + '\'' +
                 ", status='" + getStatus() + '\'' +
-                ", owner=" + (owner != null ? owner.getName() : "none") +
+                ", owner=" + (owner != null ? owner.getOwnerID() : "none") +
                 ", currentJob=" + (currentJob != null ? currentJob.getJobId() : "none") +
                 ", arrivalTime=" + arrivalTime +
                 ", departureTime=" + departureTime +
