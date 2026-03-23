@@ -1,7 +1,7 @@
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Instant;
-import java.time.ZoneId;
+
 
 
 public class FileLogger implements Logger{
@@ -12,7 +12,7 @@ public class FileLogger implements Logger{
 		try {
 			fileWriter = new FileWriter(filePath, true);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		
 			e.printStackTrace();
 		}
 		
