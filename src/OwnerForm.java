@@ -63,7 +63,7 @@ public class OwnerForm {
                 return;
             }
 
-            // Log entry
+            // Log entry aa
             String logMsg =
                     "OWNER_SUBMIT | ownerId=" + ownerId +
                             ", make=" + make +

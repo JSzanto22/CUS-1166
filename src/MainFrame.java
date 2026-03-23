@@ -31,7 +31,7 @@ public class MainFrame extends JFrame {
         setLayout(new BorderLayout());
         getContentPane().setBackground(APP_BG);
 
-        // Header
+        // Header a
         JLabel header = new JLabel(
                 "Vehicular Cloud Real-Time System",
                 SwingConstants.CENTER
