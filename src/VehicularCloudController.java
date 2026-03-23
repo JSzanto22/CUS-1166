@@ -1,5 +1,6 @@
 import java.util.List;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class VehicularCloudController extends ComputationNode{
 	
@@ -72,12 +73,14 @@ public class VehicularCloudController extends ComputationNode{
 	    return new ArrayList<>(activeJobs);
 	}
 	
-	public int computeCompletionTime() {
+	public List<Integer> computeCompletionTime() {
+		List<Integer> result = new LinkedList<>();
 		int total = 0;
 		for(Job j : activeJobs) {
 			total += j.getDuration();
+			result.add(total);
 		}
-		return total;
+		return result;
 	}
 
 }
