@@ -1,4 +1,11 @@
 import java.util.List;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -8,22 +15,135 @@ public class VehicularCloudController extends ComputationNode{
 	private List<Vehicle> vehicles = new ArrayList<>();
 	private ResultServer resultServer;
 	private static final int VEHICLE_LIMIT = 500;
+	// Networking Stuff
+	private static ServerSocket serverSocket;
+	private final LinkedList<ClientHandler> pendingMessages = new LinkedList<>();
+
+
+	private class ClientHandler implements Runnable {
+	    private Socket socket;
+	    private DataInputStream inputStream;
+	    private DataOutputStream outputStream;
+	    private ClientType type;
+	    private Object messageData; // latest message from client
+
+	    ClientHandler(Socket socket, ClientType type) throws IOException {
+	        this.socket = socket;
+	        this.type = type;
+	        this.inputStream = new DataInputStream(socket.getInputStream());
+	        this.outputStream = new DataOutputStream(socket.getOutputStream());
+	    }
+
+	    // Accept and update relevant list
+	    public synchronized void accept() throws IOException {
+	        if (messageData instanceof Vehicle vehicle) {
+	            registerVehicle(vehicle);
+	        } else if (messageData instanceof Job job) {
+	            addJob(job);
+	        }
+	        outputStream.writeUTF("accepted");
+	        outputStream.flush();
+	        messageData = null; // clear after processing
+	    }
+
+	    // Reject message
+	    public synchronized void reject() throws IOException {
+	        outputStream.writeUTF("rejected");
+	        outputStream.flush();
+	        messageData = null; // clear after processing
+	    }
+
+	    @Override
+	    public void run() {
+	        try {
+	            while (true) {
+	                int length = inputStream.readInt();
+	                byte[] data = new byte[length];
+	                inputStream.readFully(data);
+	                ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+	                Object obj = ois.readObject();
+
+	                if (obj instanceof Vehicle || obj instanceof Job) {
+	                    messageData = obj;
+	                    synchronized (pendingMessages) {
+	                        pendingMessages.add(this);
+	                    }
+	                }
+	                // ignore unsupported objects
+	            }
+	        } catch (IOException | ClassNotFoundException e) {
+	            System.out.println("Client disconnected: " + socket);
+	        }
+	    }
+
+	    public Object getMessageData() {
+	        return messageData;
+	    }
+
+	    public ClientType getClientType() {
+	        return type;
+	    }
+	}
+	
+	private enum ClientType{
+		VEHICLE_OWNER,
+		JOB_OWNER
+	}
+	
 	
 	public VehicularCloudController(String id, String status, ResultServer resultServer) {
 		super(id, status);
 		this.resultServer = resultServer;
-	}
-	
-	public boolean registerVehicle(Vehicle vehicle) {
-		if(vehicles.size()+1 > VEHICLE_LIMIT) {
-			return false;
+		try {
+			serverSocket = new ServerSocket(9860);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		vehicles.add(vehicle);
-		return true;
+		startServer();
 	}
 	
-	public void removeVehicle(Vehicle vehicle) {
-		vehicles.remove(vehicle);
+	private void startServer() {
+	    new Thread(() -> {
+	        System.out.println("Server started, waiting for clients...");
+	        while (true) {
+	            try {
+	                Socket clientSocket = serverSocket.accept();
+	                ClientType type = determineClientType(clientSocket);
+	                ClientHandler handler = new ClientHandler(clientSocket, type);
+	                new Thread(handler).start();  // spawn thread per client
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	    }).start();
+	}
+	
+	private ClientType determineClientType(Socket clientSocket) {
+	    try {
+	        DataInputStream in = new DataInputStream(clientSocket.getInputStream());
+	        String typeStr = in.readUTF();
+	        if (typeStr.equalsIgnoreCase("VEHICLE_OWNER")) return ClientType.VEHICLE_OWNER;
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+	    return ClientType.JOB_OWNER; // default
+	}
+	
+	public synchronized ClientHandler getNextPending() {
+	    if (!pendingMessages.isEmpty()) {
+	        return pendingMessages.removeFirst();
+	    }
+	    return null;
+	}
+	
+	public synchronized boolean registerVehicle(Vehicle vehicle) {
+	    if (vehicles.size() + 1 > VEHICLE_LIMIT) return false;
+	    vehicles.add(vehicle);
+	    return true;
+	}
+	
+	public synchronized void removeVehicle(Vehicle vehicle) {
+	    vehicles.remove(vehicle);
 	}
 	
 	public void assignJob(Job job, int redundancyLevel) {
@@ -63,10 +183,8 @@ public class VehicularCloudController extends ComputationNode{
 	    activeJobs.remove(job);
 	}
 
-	public void addJob(Job job) {
-	    if (job != null) {
-	        activeJobs.add(job);
-	    }
+	public synchronized void addJob(Job job) {
+	    if (job != null) activeJobs.add(job);
 	}
 
 	public List<Job> getActiveJobs() {
