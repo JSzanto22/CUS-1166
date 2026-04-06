@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class Job {
+public class Job implements Serializable{
     // Attributes from UML
     private String jobId;
     private String status;

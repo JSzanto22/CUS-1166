@@ -1,4 +1,5 @@
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -9,53 +10,87 @@ public class Client {
     private String clientID;
     private String approxJobDuration;
     private String jobDeadline;
-    //Networking Stuff
+
     private static final String HOST = "localhost";
     private static final int PORT = 9806;
-   
+    private Socket socket;
+    private DataInputStream inputStream;
+    private DataOutputStream outputStream;
+
     public Client() {
+        connectToController("JOB_OWNER");
     }
 
- 
     public Client(String clientID, String approxJobDuration, String jobDeadline) {
         this.clientID = clientID;
         this.approxJobDuration = approxJobDuration;
         this.jobDeadline = jobDeadline;
+        connectToController("JOB_OWNER");
     }
 
-    public void sendJob(Job job) {
-    	try(Socket socket = new Socket(HOST, PORT)) {
-    		
-    		// Step 1: Identify client type
-    		DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-    		dos.writeUTF("JOB_OWNER");
-    		dos.flush();
-    		
-    		// Step 2: Send Object
+    private void connectToController(String clientType) {
+        try {
+            socket = new Socket(HOST, PORT);
+            outputStream = new DataOutputStream(socket.getOutputStream());
+            inputStream = new DataInputStream(socket.getInputStream());
+            outputStream.writeUTF(clientType);
+            outputStream.flush();
+        } catch (IOException e) {
+            shutdownConnection();
+            throw new IllegalStateException("Could not connect client to VC controller.", e);
+        }
+    }
+
+    public synchronized void sendJob(Job job) {
+        ensureConnected();
+
+    	try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(bos);
             oos.writeObject(job);
             oos.flush();
 
             byte[] data = bos.toByteArray();
-            dos.writeInt(data.length);
-            dos.write(data);
-            dos.flush();    
+            outputStream.writeInt(data.length);
+            outputStream.write(data);
+            outputStream.flush();
 
-            // Step 3: wait for responses
-            DataInputStream dis = new DataInputStream(socket.getInputStream());
-
-            String ack = dis.readUTF();        // "received"
+            String ack = inputStream.readUTF();
             System.out.println("Server ACK: " + ack);
 
-            String decision = dis.readUTF();   // "accepted" or "rejected"
+            String decision = inputStream.readUTF();
             System.out.println("Server Decision: " + decision);
-    		
     	} catch (IOException e) {
-    		e.printStackTrace();
+            throw new IllegalStateException("Could not send job to VC controller.", e);
     	}
     }
-   
+
+    private void ensureConnected() {
+        if (socket == null || socket.isClosed() || !socket.isConnected()) {
+            throw new IllegalStateException("Client is not connected to the VC controller.");
+        }
+    }
+
+    public synchronized void shutdownConnection() {
+        closeConnectionResource(inputStream);
+        closeConnectionResource(outputStream);
+        closeConnectionResource(socket);
+        inputStream = null;
+        outputStream = null;
+        socket = null;
+    }
+
+    private void closeConnectionResource(Closeable closeable) {
+        if (closeable == null) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public String getClientID() {
         return clientID;
     }

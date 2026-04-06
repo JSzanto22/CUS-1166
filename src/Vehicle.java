@@ -1,8 +1,9 @@
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Vehicle extends ComputationNode {
+public class Vehicle extends ComputationNode implements Serializable{
 
     private Owner owner;
     private Job currentJob;

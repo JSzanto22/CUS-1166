@@ -1,4 +1,5 @@
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -9,53 +10,85 @@ public class Owner {
     private String ownerID;
     private String vehicleInfo;
     private String approxResidencyTime;
-    //Networking Stuff
+
     private static final String HOST = "localhost";
     private static final int PORT = 9806;
-   
-    public Owner() {
-    }
+    private Socket socket;
+    private DataInputStream inputStream;
+    private DataOutputStream outputStream;
 
+    public Owner() {
+        connectToController("VEHICLE_OWNER");
+    }
 
     public Owner(String ownerID, String vehicleInfo, String approxResidencyTime) {
         this.ownerID = ownerID;
         this.vehicleInfo = vehicleInfo;
         this.approxResidencyTime = approxResidencyTime;
+        connectToController("VEHICLE_OWNER");
+    }
+
+    private void connectToController(String clientType) {
+        try {
+            socket = new Socket(HOST, PORT);
+            outputStream = new DataOutputStream(socket.getOutputStream());
+            inputStream = new DataInputStream(socket.getInputStream());
+            outputStream.writeUTF(clientType);
+            outputStream.flush();
+        } catch (IOException e) {
+            shutdownConnection();
+            throw new IllegalStateException("Could not connect owner to VC controller.", e);
+        }
     }
     
-    public void sendVehicle(Vehicle vehicle) {
-        try (Socket socket = new Socket(HOST, PORT)) {
+    public synchronized void sendVehicle(Vehicle vehicle) {
+        ensureConnected();
 
-            // Create output stream to send data to server
-            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-
-            // Step 1: Identify this client as a VEHICLE_OWNER
-            dos.writeUTF("VEHICLE_OWNER");
-            dos.flush();
-
-            // Step 2: Serialize the Vehicle object into a byte array
+        try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeObject(vehicle);   // convert object -> bytes
+            oos.writeObject(vehicle);
             oos.flush();
 
-            // Step 3: Send the byte array length + actual data
             byte[] data = bos.toByteArray();
-            dos.writeInt(data.length);  // send size first (server expects this)
-            dos.write(data);            // send actual object bytes
-            dos.flush();
+            outputStream.writeInt(data.length);
+            outputStream.write(data);
+            outputStream.flush();
 
-            // Step 4: Listen for server responses
-            DataInputStream dis = new DataInputStream(socket.getInputStream());
-
-            String ack = dis.readUTF();        // "received"
+            String ack = inputStream.readUTF();
             System.out.println("Server ACK: " + ack);
 
-            String decision = dis.readUTF();   // "accepted" or "rejected"
+            String decision = inputStream.readUTF();
             System.out.println("Server Decision: " + decision);
 
         } catch (IOException e) {
-            e.printStackTrace(); // handle connection errors
+            throw new IllegalStateException("Could not send vehicle to VC controller.", e);
+        }
+    }
+
+    private void ensureConnected() {
+        if (socket == null || socket.isClosed() || !socket.isConnected()) {
+            throw new IllegalStateException("Owner is not connected to the VC controller.");
+        }
+    }
+
+    public synchronized void shutdownConnection() {
+        closeConnectionResource(inputStream);
+        closeConnectionResource(outputStream);
+        closeConnectionResource(socket);
+        inputStream = null;
+        outputStream = null;
+        socket = null;
+    }
+
+    private void closeConnectionResource(Closeable closeable) {
+        if (closeable == null) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
