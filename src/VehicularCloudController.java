@@ -95,7 +95,7 @@ public class VehicularCloudController extends ComputationNode{
 		super(id, status);
 		this.resultServer = resultServer;
 		try {
-			serverSocket = new ServerSocket(9860);
+			serverSocket = new ServerSocket(9806);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
