@@ -1,6 +1,0 @@
-INFO 2026-03-26T20:09:33.166935Z OWNER_SUBMIT | ownerId=ownderId1, make=car, model=CAR, year=2028, residencyTime=789
-INFO 2026-03-26T20:11:17.837840Z CLIENT_SUBMIT clientId=cID1 name=clientName durationMinutes=3 deadline=2027-01-01
-INFO 2026-03-26T20:11:52.131666Z CLIENT_SUBMIT clientId=cid2 name=cname2 durationMinutes=7 deadline=2027-01-01
-INFO 2026-03-26T20:12:11.330851Z CLIENT_SUBMIT clientId=cid3 name=cname3 durationMinutes=8 deadline=2027-01-01
-INFO 2026-03-30T17:13:40.068208Z OWNER_SUBMIT | ownerId=sdlkgn, make=sdgjn, model=sdlgkj, year=1999, residencyTime=234
-INFO 2026-03-30T17:13:52.579174Z CLIENT_SUBMIT clientId=rsgsw name=ewtgw durationMinutes=67 deadline=450

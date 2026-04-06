@@ -1,5 +1,7 @@
 
-public abstract class ComputationNode {
+import java.io.Serializable;
+
+public abstract class ComputationNode implements Serializable {
 	String id;
 	String status;
 	

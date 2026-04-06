@@ -16,6 +16,7 @@ public class MainFrame extends JFrame {
     private CardLayout cardLayout;
     private VehicularCloudController vcController;
     private VcRequestQueue requestQueue;
+    private Logger logger;
 
     public MainFrame() {
 
@@ -53,15 +54,13 @@ public class MainFrame extends JFrame {
         contentPanel = new JPanel(cardLayout);
         contentPanel.setBackground(APP_BG);
 
-        Logger logger = new FileLogger("src/logs.txt");
+        logger = new FileLogger("src/logs.txt");
         ResultServer resultServer = new ResultServer("RS-1");
-        vcController = new VehicularCloudController("VC-1", "ACTIVE", resultServer);
         requestQueue = new VcRequestQueue();
+        vcController = new VehicularCloudController("VC-1", "ACTIVE", resultServer, requestQueue);
 
         contentPanel.add(new IntroPanel(this), INTRO_SCREEN);
         contentPanel.add(createRoleSelectionPanel(), ROLE_SCREEN);
-        contentPanel.add(new OwnerForm(this, logger).getPanel(), OWNER_SCREEN);
-        contentPanel.add(new ClientForm(this, logger, vcController).getPanel(), CLIENT_SCREEN);
         contentPanel.add(new AdminPanel(this, vcController, requestQueue, logger), ADMIN_SCREEN);
 
         add(contentPanel, BorderLayout.CENTER);
@@ -142,13 +141,9 @@ public class MainFrame extends JFrame {
         adminButton.setFocusPainted(false);
 
         // Navigation actions
-        ownerButton.addActionListener(e ->
-                showScreen(OWNER_SCREEN)
-        );
+        ownerButton.addActionListener(e -> openOwnerWindow());
 
-        clientButton.addActionListener(e ->
-                showScreen(CLIENT_SCREEN)
-        );
+        clientButton.addActionListener(e -> openClientWindow());
 
         adminButton.addActionListener(e -> showScreen(ADMIN_SCREEN));
 
@@ -174,5 +169,39 @@ public class MainFrame extends JFrame {
         panel.add(adminButton, gbc);
 
         return panel;
+    }
+
+    private void openOwnerWindow() {
+        Owner owner = new Owner();
+        JFrame ownerFrame = new JFrame("Vehicle Owner Registration");
+        ownerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        ownerFrame.setContentPane(new OwnerForm(owner, logger).getPanel());
+        ownerFrame.pack();
+        ownerFrame.setSize(560, 360);
+        ownerFrame.setLocationRelativeTo(this);
+        ownerFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                owner.shutdownConnection();
+            }
+        });
+        ownerFrame.setVisible(true);
+    }
+
+    private void openClientWindow() {
+        Client client = new Client();
+        JFrame clientFrame = new JFrame("Client Job Submission");
+        clientFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        clientFrame.setContentPane(new ClientForm(client, logger).getPanel());
+        clientFrame.pack();
+        clientFrame.setSize(560, 340);
+        clientFrame.setLocationRelativeTo(this);
+        clientFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                client.shutdownConnection();
+            }
+        });
+        clientFrame.setVisible(true);
     }
 }

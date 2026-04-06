@@ -1,10 +1,12 @@
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 
 
 public class FileLogger implements Logger{
+    private static final ZoneId EASTERN_TIME = ZoneId.of("America/New_York");
 
 	private FileWriter fileWriter;
 	
@@ -52,7 +54,7 @@ public class FileLogger implements Logger{
 	}
 	
 	private String time() {
-		return Instant.now().toString();
+		return ZonedDateTime.now(EASTERN_TIME).toString();
 		
 	}
 	

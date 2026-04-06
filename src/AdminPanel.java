@@ -181,18 +181,25 @@ public class AdminPanel extends JPanel {
         reject.setFocusPainted(false);
 
         accept.addActionListener(e -> {
-            if (r.getJobToQueueOnAccept() != null) {
-                vcController.addJob(r.getJobToQueueOnAccept());
+            try {
+                r.accept();
+                logger.info(r.getLogMessageOnAccept());
+                requestQueue.remove(r);
+                rebuildRequestRows();
+                loadLog();
+            } catch (RuntimeException ex) {
+                JOptionPane.showMessageDialog(this, "Could not accept request: " + ex.getMessage());
             }
-            logger.info(r.getLogMessageOnAccept());
-            requestQueue.remove(r);
-            rebuildRequestRows();
-            loadLog();
         });
 
         reject.addActionListener(e -> {
-            requestQueue.remove(r);
-            rebuildRequestRows();
+            try {
+                r.reject();
+                requestQueue.remove(r);
+                rebuildRequestRows();
+            } catch (RuntimeException ex) {
+                JOptionPane.showMessageDialog(this, "Could not reject request: " + ex.getMessage());
+            }
         });
 
         row.add(typeLab);
@@ -235,7 +242,7 @@ public class AdminPanel extends JPanel {
         List<Integer> completion = vcController.computeCompletionTime();
         StringBuilder sb = new StringBuilder();
         sb.append("Job ID\tDuration(min)\tCompletion(min)\n");
-
+/*
         for (int i = 0; i < jobs.size(); i++) {
             Job job = jobs.get(i);
             int done = completion.get(i);
@@ -246,9 +253,9 @@ public class AdminPanel extends JPanel {
                     .append(done)
                     .append("\n");
         }
-
+*/
         int total = completion.isEmpty() ? 0 : completion.get(completion.size() - 1);
-        sb.append("\nTotal completion time: ").append(total).append(" minutes");
+        sb.append("\nTotal completion time: ").append(completion).append(" minutes");
 
         JOptionPane.showMessageDialog(
                 this,

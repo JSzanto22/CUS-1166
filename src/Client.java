@@ -4,18 +4,20 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 
-public class Client {
+public class Client implements Serializable {
     private String clientID;
+    private String clientName;
     private String approxJobDuration;
     private String jobDeadline;
 
-    private static final String HOST = "localhost";
-    private static final int PORT = 9806;
-    private Socket socket;
-    private DataInputStream inputStream;
-    private DataOutputStream outputStream;
+    private static final String HOST = VehicularCloudController.HOST;
+    private static final int PORT = VehicularCloudController.PORT;
+    private transient Socket socket;
+    private transient DataInputStream inputStream;
+    private transient DataOutputStream outputStream;
 
     public Client() {
         connectToController("JOB_OWNER");
@@ -23,6 +25,14 @@ public class Client {
 
     public Client(String clientID, String approxJobDuration, String jobDeadline) {
         this.clientID = clientID;
+        this.approxJobDuration = approxJobDuration;
+        this.jobDeadline = jobDeadline;
+        connectToController("JOB_OWNER");
+    }
+
+    public Client(String clientID, String clientName, String approxJobDuration, String jobDeadline) {
+        this.clientID = clientID;
+        this.clientName = clientName;
         this.approxJobDuration = approxJobDuration;
         this.jobDeadline = jobDeadline;
         connectToController("JOB_OWNER");
@@ -41,7 +51,7 @@ public class Client {
         }
     }
 
-    public synchronized void sendJob(Job job) {
+    public synchronized String sendJob(Job job) {
         ensureConnected();
 
     	try {
@@ -55,11 +65,9 @@ public class Client {
             outputStream.write(data);
             outputStream.flush();
 
-            String ack = inputStream.readUTF();
-            System.out.println("Server ACK: " + ack);
-
             String decision = inputStream.readUTF();
             System.out.println("Server Decision: " + decision);
+            return decision;
     	} catch (IOException e) {
             throw new IllegalStateException("Could not send job to VC controller.", e);
     	}
@@ -95,6 +103,14 @@ public class Client {
         return clientID;
     }
 
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
  
     public void setClientID(String clientID) {
         this.clientID = clientID;
@@ -125,6 +141,7 @@ public class Client {
     public String toString() {
         return "Client{" +
                 "clientID='" + clientID + '\'' +
+                ", clientName='" + clientName + '\'' +
                 ", approxJobDuration='" + approxJobDuration + '\'' +
                 ", jobDeadline='" + jobDeadline + '\'' +
                 '}';

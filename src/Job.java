@@ -7,6 +7,9 @@ public class Job implements Serializable{
     private String status;
     private int duration;
     private LocalDateTime deadline;
+    private String clientId;
+    private String clientName;
+    private String requestedDeadline;
 
     // Constructor to initialize a new Job
     public Job(String jobId, String status, int duration, LocalDateTime deadline) {
@@ -14,6 +17,14 @@ public class Job implements Serializable{
         this.status = status;
         this.duration = duration;
         this.deadline = deadline;
+    }
+
+    public Job(String jobId, String status, int duration, LocalDateTime deadline,
+               String clientId, String clientName, String requestedDeadline) {
+        this(jobId, status, duration, deadline);
+        this.clientId = clientId;
+        this.clientName = clientName;
+        this.requestedDeadline = requestedDeadline;
     }
 
 
@@ -41,6 +52,18 @@ public class Job implements Serializable{
 
     public LocalDateTime getDeadline() {
         return deadline;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public String getRequestedDeadline() {
+        return requestedDeadline;
     }
 }
 

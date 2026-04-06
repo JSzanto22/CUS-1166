@@ -4,18 +4,22 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 
-public class Owner {
+public class Owner implements Serializable {
     private String ownerID;
     private String vehicleInfo;
+    private String vehicleMake;
+    private String vehicleModel;
+    private String vehicleYear;
     private String approxResidencyTime;
 
-    private static final String HOST = "localhost";
-    private static final int PORT = 9806;
-    private Socket socket;
-    private DataInputStream inputStream;
-    private DataOutputStream outputStream;
+    private static final String HOST = VehicularCloudController.HOST;
+    private static final int PORT = VehicularCloudController.PORT;
+    private transient Socket socket;
+    private transient DataInputStream inputStream;
+    private transient DataOutputStream outputStream;
 
     public Owner() {
         connectToController("VEHICLE_OWNER");
@@ -41,7 +45,7 @@ public class Owner {
         }
     }
     
-    public synchronized void sendVehicle(Vehicle vehicle) {
+    public synchronized String sendVehicle(Vehicle vehicle) {
         ensureConnected();
 
         try {
@@ -55,11 +59,9 @@ public class Owner {
             outputStream.write(data);
             outputStream.flush();
 
-            String ack = inputStream.readUTF();
-            System.out.println("Server ACK: " + ack);
-
             String decision = inputStream.readUTF();
             System.out.println("Server Decision: " + decision);
+            return decision;
 
         } catch (IOException e) {
             throw new IllegalStateException("Could not send vehicle to VC controller.", e);
@@ -116,6 +118,30 @@ public class Owner {
         this.vehicleInfo = vehicleInfo;
     }
 
+    public String getVehicleMake() {
+        return vehicleMake;
+    }
+
+    public void setVehicleMake(String vehicleMake) {
+        this.vehicleMake = vehicleMake;
+    }
+
+    public String getVehicleModel() {
+        return vehicleModel;
+    }
+
+    public void setVehicleModel(String vehicleModel) {
+        this.vehicleModel = vehicleModel;
+    }
+
+    public String getVehicleYear() {
+        return vehicleYear;
+    }
+
+    public void setVehicleYear(String vehicleYear) {
+        this.vehicleYear = vehicleYear;
+    }
+
     
     public String getApproxResidencyTime() {
         return approxResidencyTime;
@@ -132,6 +158,9 @@ public class Owner {
         return "Owner{" +
                 "ownerID='" + ownerID + '\'' +
                 ", vehicleInfo='" + vehicleInfo + '\'' +
+                ", vehicleMake='" + vehicleMake + '\'' +
+                ", vehicleModel='" + vehicleModel + '\'' +
+                ", vehicleYear='" + vehicleYear + '\'' +
                 ", approxResidencyTime='" + approxResidencyTime + '\'' +
                 '}';
     }

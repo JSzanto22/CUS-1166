@@ -8,12 +8,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.UUID;
 
 public class VehicularCloudController extends ComputationNode{
+    public static final String HOST = "localhost";
+    public static final int PORT = 9816;
 	
 	private List<Job> activeJobs = new ArrayList<>();
 	private List<Vehicle> vehicles = new ArrayList<>();
 	private ResultServer resultServer;
+	private VcRequestQueue requestQueue;
 	private static final int VEHICLE_LIMIT = 500;
 	// Networking Stuff
 	private static ServerSocket serverSocket;
@@ -68,6 +72,7 @@ public class VehicularCloudController extends ComputationNode{
 	                    synchronized (pendingMessages) {
 	                        pendingMessages.add(this);
 	                    }
+	                    queuePendingMessage(this, obj);
 	                }
 	                // ignore unsupported objects
 	            }
@@ -91,11 +96,12 @@ public class VehicularCloudController extends ComputationNode{
 	}
 	
 	
-	public VehicularCloudController(String id, String status, ResultServer resultServer) {
+	public VehicularCloudController(String id, String status, ResultServer resultServer, VcRequestQueue requestQueue) {
 		super(id, status);
 		this.resultServer = resultServer;
+		this.requestQueue = requestQueue;
 		try {
-			serverSocket = new ServerSocket(9806);
+			serverSocket = new ServerSocket(PORT);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -127,6 +133,65 @@ public class VehicularCloudController extends ComputationNode{
 	        e.printStackTrace();
 	    }
 	    return ClientType.JOB_OWNER; // default
+	}
+
+	private void queuePendingMessage(ClientHandler handler, Object obj) {
+	    if (requestQueue == null) {
+	        return;
+	    }
+
+	    String requestId = UUID.randomUUID().toString();
+	    String type;
+	    String summary;
+	    String acceptLog;
+
+	    if (obj instanceof Vehicle vehicle) {
+	        type = "Vehicle";
+	        String ownerName = vehicle.getOwner() != null ? vehicle.getOwner().getOwnerID() : "unknown";
+	        summary = vehicle.getId() + " / owner " + ownerName;
+	        String vehicleMake = vehicle.getOwner() != null ? vehicle.getOwner().getVehicleMake() : "unknown";
+	        String vehicleModel = vehicle.getOwner() != null ? vehicle.getOwner().getVehicleModel() : "unknown";
+	        String vehicleYear = vehicle.getOwner() != null ? vehicle.getOwner().getVehicleYear() : "unknown";
+	        String residencyTime = vehicle.getOwner() != null ? vehicle.getOwner().getApproxResidencyTime() : "unknown";
+	        acceptLog = "OWNER_ACCEPT ownerId=" + ownerName
+	                + ", vehicleMake=" + vehicleMake
+	                + ", vehicleModel=" + vehicleModel
+	                + ", vehicleYear=" + vehicleYear
+	                + ", residencyTime=" + residencyTime;
+	    } else if (obj instanceof Job job) {
+	        type = "Job";
+	        summary = job.getJobId();
+	        acceptLog = "CLIENT_ACCEPT clientId=" + job.getClientId()
+	                + ", clientName=" + job.getClientName()
+	                + ", jobDuration=" + job.getDuration()
+	                + ", jobDeadline=" + job.getRequestedDeadline();
+	    } else {
+	        return;
+	    }
+
+	    PendingRequest request = new PendingRequest(
+	            requestId,
+	            type,
+	            summary,
+	            acceptLog,
+	            obj instanceof Job job ? job : null,
+	            () -> {
+	                try {
+	                    handler.accept();
+	                } catch (IOException e) {
+	                    throw new IllegalStateException("Could not accept pending request " + requestId, e);
+	                }
+	            },
+	            () -> {
+	                try {
+	                    handler.reject();
+	                } catch (IOException e) {
+	                    throw new IllegalStateException("Could not reject pending request " + requestId, e);
+	                }
+	            }
+	    );
+
+	    requestQueue.add(request);
 	}
 	
 	public synchronized ClientHandler getNextPending() {
