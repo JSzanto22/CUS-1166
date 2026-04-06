@@ -15,6 +15,7 @@ public class MainFrame extends JFrame {
     private JPanel contentPanel;
     private CardLayout cardLayout;
     private VehicularCloudController vcController;
+    private VcRequestQueue requestQueue;
 
     public MainFrame() {
 
@@ -55,12 +56,13 @@ public class MainFrame extends JFrame {
         Logger logger = new FileLogger("src/logs.txt");
         ResultServer resultServer = new ResultServer("RS-1");
         vcController = new VehicularCloudController("VC-1", "ACTIVE", resultServer);
-        
+        requestQueue = new VcRequestQueue();
+
         contentPanel.add(new IntroPanel(this), INTRO_SCREEN);
         contentPanel.add(createRoleSelectionPanel(), ROLE_SCREEN);
         contentPanel.add(new OwnerForm(this, logger).getPanel(), OWNER_SCREEN);
         contentPanel.add(new ClientForm(this, logger, vcController).getPanel(), CLIENT_SCREEN);
-        contentPanel.add(new AdminPanel(this, vcController), ADMIN_SCREEN);
+        contentPanel.add(new AdminPanel(this, vcController, requestQueue, logger), ADMIN_SCREEN);
 
         add(contentPanel, BorderLayout.CENTER);
 
@@ -103,7 +105,7 @@ public class MainFrame extends JFrame {
 
      
     /*
-     * Redacted for now
+
      * This is a tester panel now
      */
 //Role selection panel (Owner & Client)
