@@ -9,9 +9,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-/**
-read onlyaa
- */
 public class AdminPanel extends JPanel {
 
     public static final String LOG_PATH = "src/logs.txt";
@@ -21,11 +18,19 @@ public class AdminPanel extends JPanel {
     private static final Color CARD_BORDER = new Color(0xD7, 0xE3, 0xDD);
 
     private final VehicularCloudController vcController;
+    private final VcRequestQueue requestQueue;
+    private final Logger logger;
+
     private JTextArea logArea;
     private JLabel statusLabel;
+    private JPanel requestsListPanel;
 
-    public AdminPanel(MainFrame mainFrame, VehicularCloudController vcController) {
+    public AdminPanel(MainFrame mainFrame, VehicularCloudController vcController,
+                        VcRequestQueue requestQueue, Logger logger) {
         this.vcController = vcController;
+        this.requestQueue = requestQueue;
+        this.logger = logger;
+
         setLayout(new GridBagLayout());
         setBackground(APP_BG);
         setBorder(new EmptyBorder(18, 18, 18, 18));
@@ -37,7 +42,7 @@ public class AdminPanel extends JPanel {
                 BorderFactory.createEmptyBorder(16, 16, 16, 16)
         ));
 
-        JLabel title = new JLabel("Admin – Activity log");
+        JLabel title = new JLabel("Admin – VC Controller");
         title.setFont(title.getFont().deriveFont(Font.BOLD, 18f));
         title.setForeground(new Color(0x26, 0x32, 0x38));
         card.add(title, BorderLayout.NORTH);
@@ -46,6 +51,35 @@ public class AdminPanel extends JPanel {
         statusLabel.setForeground(new Color(0x55, 0x63, 0x6C));
         card.add(statusLabel, BorderLayout.SOUTH);
 
+        requestsListPanel = new JPanel();
+        requestsListPanel.setLayout(new BoxLayout(requestsListPanel, BoxLayout.Y_AXIS));
+        requestsListPanel.setBackground(CARD_FILL);
+
+        JScrollPane requestsScroll = new JScrollPane(requestsListPanel);
+        requestsScroll.setPreferredSize(new Dimension(520, 130));
+        requestsScroll.getVerticalScrollBar().setUnitIncrement(16);
+
+        JPanel headerRow = new JPanel(new GridLayout(1, 4, 8, 0));
+        headerRow.setBackground(CARD_FILL);
+        headerRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
+        headerRow.add(new JLabel("Type"));
+        headerRow.add(new JLabel("Request"));
+        headerRow.add(new JLabel(""));
+        headerRow.add(new JLabel(""));
+
+        JPanel requestsBlock = new JPanel(new BorderLayout(0, 6));
+        requestsBlock.setOpaque(false);
+        requestsBlock.add(headerRow, BorderLayout.NORTH);
+        requestsBlock.add(requestsScroll, BorderLayout.CENTER);
+
+        JLabel reqTitle = new JLabel("Pending requests");
+        reqTitle.setFont(reqTitle.getFont().deriveFont(Font.BOLD, 13f));
+
+        JPanel topSection = new JPanel(new BorderLayout(8, 8));
+        topSection.setOpaque(false);
+        topSection.add(reqTitle, BorderLayout.NORTH);
+        topSection.add(requestsBlock, BorderLayout.CENTER);
+
         logArea = new JTextArea();
         logArea.setEditable(false);
         logArea.setLineWrap(true);
@@ -53,10 +87,23 @@ public class AdminPanel extends JPanel {
         logArea.setBackground(Color.WHITE);
         logArea.setBorder(BorderFactory.createLineBorder(new Color(0xE0, 0xE5, 0xEA)));
 
-        JScrollPane scroll = new JScrollPane(logArea);
-        scroll.setPreferredSize(new Dimension(520, 200));
-        scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        JScrollPane logScroll = new JScrollPane(logArea);
+        logScroll.setPreferredSize(new Dimension(520, 110));
+
+        JLabel logTitle = new JLabel("Activity log");
+        logTitle.setFont(logTitle.getFont().deriveFont(Font.BOLD, 13f));
+
+        JPanel logSection = new JPanel(new BorderLayout(8, 8));
+        logSection.setOpaque(false);
+        logSection.add(logTitle, BorderLayout.NORTH);
+        logSection.add(logScroll, BorderLayout.CENTER);
+
+        JPanel centerStack = new JPanel();
+        centerStack.setLayout(new BoxLayout(centerStack, BoxLayout.Y_AXIS));
+        centerStack.setOpaque(false);
+        centerStack.add(topSection);
+        centerStack.add(Box.createVerticalStrut(12));
+        centerStack.add(logSection);
 
         JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttonRow.setBackground(CARD_FILL);
@@ -64,7 +111,7 @@ public class AdminPanel extends JPanel {
         JButton refreshButton = new JButton("Refresh");
         refreshButton.setPreferredSize(btn);
         refreshButton.setFocusPainted(false);
-        refreshButton.addActionListener(e -> loadLog());
+        refreshButton.addActionListener(e -> refreshAll());
         JButton completionButton = new JButton("Completion Time");
         completionButton.setPreferredSize(new Dimension(160, 36));
         completionButton.setFocusPainted(false);
@@ -79,7 +126,7 @@ public class AdminPanel extends JPanel {
 
         JPanel centerBlock = new JPanel(new BorderLayout(0, 10));
         centerBlock.setOpaque(false);
-        centerBlock.add(scroll, BorderLayout.CENTER);
+        centerBlock.add(centerStack, BorderLayout.CENTER);
         centerBlock.add(buttonRow, BorderLayout.SOUTH);
         card.add(centerBlock, BorderLayout.CENTER);
 
@@ -91,15 +138,75 @@ public class AdminPanel extends JPanel {
         gbc.weighty = 1;
         add(card, gbc);
 
+        refreshAll();
+    }
+
+    private void refreshAll() {
+        rebuildRequestRows();
         loadLog();
+    }
+
+    private void rebuildRequestRows() {
+        requestsListPanel.removeAll();
+        List<PendingRequest> list = requestQueue.getAll();
+        if (list.isEmpty()) {
+            JLabel empty = new JLabel("(No pending requests)");
+            empty.setAlignmentX(Component.LEFT_ALIGNMENT);
+            requestsListPanel.add(empty);
+        } else {
+            for (PendingRequest r : list) {
+                requestsListPanel.add(requestRow(r));
+                requestsListPanel.add(Box.createVerticalStrut(6));
+            }
+        }
+        requestsListPanel.revalidate();
+        requestsListPanel.repaint();
+        statusLabel.setText("Pending: " + list.size());
+    }
+
+    private JPanel requestRow(PendingRequest r) {
+        JPanel row = new JPanel(new GridLayout(1, 4, 8, 0));
+        row.setBackground(Color.WHITE);
+        row.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(0xE0, 0xE5, 0xEA)),
+                BorderFactory.createEmptyBorder(6, 8, 6, 8)
+        ));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+
+        JLabel typeLab = new JLabel(r.getType());
+        JLabel sumLab = new JLabel(r.getSummary());
+        JButton accept = new JButton("Accept");
+        JButton reject = new JButton("Reject");
+        accept.setFocusPainted(false);
+        reject.setFocusPainted(false);
+
+        accept.addActionListener(e -> {
+            if (r.getJobToQueueOnAccept() != null) {
+                vcController.addJob(r.getJobToQueueOnAccept());
+            }
+            logger.info(r.getLogMessageOnAccept());
+            requestQueue.remove(r);
+            rebuildRequestRows();
+            loadLog();
+        });
+
+        reject.addActionListener(e -> {
+            requestQueue.remove(r);
+            rebuildRequestRows();
+        });
+
+        row.add(typeLab);
+        row.add(sumLab);
+        row.add(accept);
+        row.add(reject);
+        return row;
     }
 
     private void loadLog() {
         Path path = Path.of(LOG_PATH);
         try {
             if (!Files.isRegularFile(path)) {
-                logArea.setText("(No log file yet. Submit an owner or client form to create one.)");
-                statusLabel.setText("No file at " + LOG_PATH);
+                logArea.setText("(No log file yet.)");
                 return;
             }
             String text = Files.readString(path, StandardCharsets.UTF_8);
@@ -107,10 +214,9 @@ public class AdminPanel extends JPanel {
             logArea.setCaretPosition(0);
             long lines = text.isEmpty() ? 0 : text.chars().filter(ch -> ch == '\n').count() + 1;
             String when = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM d, yyyy h:mm:ss a"));
-            statusLabel.setText(lines + " line(s) · Last refreshed: " + when);
+            statusLabel.setText("Pending: " + requestQueue.getAll().size() + " · Log lines: " + lines + " · " + when);
         } catch (IOException ex) {
             logArea.setText("Could not read log: " + ex.getMessage());
-            statusLabel.setText("Error reading " + LOG_PATH);
         }
     }
 
@@ -126,23 +232,23 @@ public class AdminPanel extends JPanel {
             return;
         }
 
+        List<Integer> completion = vcController.computeCompletionTime();
         StringBuilder sb = new StringBuilder();
         sb.append("Job ID\tDuration(min)\tCompletion(min)\n");
 
-        int running = 0;
-        for (Job job : jobs) {
-            running += job.getDuration();
+        for (int i = 0; i < jobs.size(); i++) {
+            Job job = jobs.get(i);
+            int done = completion.get(i);
             sb.append(job.getJobId())
                     .append("\t")
                     .append(job.getDuration())
                     .append("\t\t")
-                    .append(running)
+                    .append(done)
                     .append("\n");
         }
 
-        sb.append("\nTotal completion time: ")
-                .append(vcController.computeCompletionTime())
-                .append(" minutes");
+        int total = completion.isEmpty() ? 0 : completion.get(completion.size() - 1);
+        sb.append("\nTotal completion time: ").append(total).append(" minutes");
 
         JOptionPane.showMessageDialog(
                 this,
