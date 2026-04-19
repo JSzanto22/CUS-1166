@@ -1,17 +1,11 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class AdminPanel extends JPanel {
-
-    public static final String LOG_PATH = "src/logs.txt";
 
     private static final Color APP_BG = new Color(0x6F, 0xA6, 0x8C);
     private static final Color CARD_FILL = new Color(0xF5, 0xF8, 0xF6);
@@ -26,7 +20,7 @@ public class AdminPanel extends JPanel {
     private JPanel requestsListPanel;
 
     public AdminPanel(MainFrame mainFrame, VehicularCloudController vcController,
-                        VcRequestQueue requestQueue, Logger logger) {
+                      VcRequestQueue requestQueue, Logger logger) {
         this.vcController = vcController;
         this.requestQueue = requestQueue;
         this.logger = logger;
@@ -42,7 +36,7 @@ public class AdminPanel extends JPanel {
                 BorderFactory.createEmptyBorder(16, 16, 16, 16)
         ));
 
-        JLabel title = new JLabel("Admin – VC Controller");
+        JLabel title = new JLabel("Admin - VC Controller");
         title.setFont(title.getFont().deriveFont(Font.BOLD, 18f));
         title.setForeground(new Color(0x26, 0x32, 0x38));
         card.add(title, BorderLayout.NORTH);
@@ -183,7 +177,13 @@ public class AdminPanel extends JPanel {
         accept.addActionListener(e -> {
             try {
                 r.accept();
-                logger.info(r.getLogMessageOnAccept());
+                if (r.getRequestData() instanceof Vehicle vehicle) {
+                    logger.info(vehicle);
+                } else if (r.getRequestData() instanceof Job job) {
+                    logger.info(job);
+                } else {
+                    logger.info(r.getLogMessageOnAccept());
+                }
                 requestQueue.remove(r);
                 rebuildRequestRows();
                 loadLog();
@@ -210,21 +210,9 @@ public class AdminPanel extends JPanel {
     }
 
     private void loadLog() {
-        Path path = Path.of(LOG_PATH);
-        try {
-            if (!Files.isRegularFile(path)) {
-                logArea.setText("(No log file yet.)");
-                return;
-            }
-            String text = Files.readString(path, StandardCharsets.UTF_8);
-            logArea.setText(text);
-            logArea.setCaretPosition(0);
-            long lines = text.isEmpty() ? 0 : text.chars().filter(ch -> ch == '\n').count() + 1;
-            String when = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM d, yyyy h:mm:ss a"));
-            statusLabel.setText("Pending: " + requestQueue.getAll().size() + " · Log lines: " + lines + " · " + when);
-        } catch (IOException ex) {
-            logArea.setText("Could not read log: " + ex.getMessage());
-        }
+        logArea.setText("DatabaseLogger is active. Accepted vehicles and jobs are inserted into the database.");
+        String when = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM d, yyyy h:mm:ss a"));
+        statusLabel.setText("Pending: " + requestQueue.getAll().size() + " | " + when);
     }
 
     private void showCompletionTime() {
@@ -242,20 +230,9 @@ public class AdminPanel extends JPanel {
         List<Integer> completion = vcController.computeCompletionTime();
         StringBuilder sb = new StringBuilder();
         sb.append("Job ID\tDuration(min)\tCompletion(min)\n");
-/*
-        for (int i = 0; i < jobs.size(); i++) {
-            Job job = jobs.get(i);
-            int done = completion.get(i);
-            sb.append(job.getJobId())
-                    .append("\t")
-                    .append(job.getDuration())
-                    .append("\t\t")
-                    .append(done)
-                    .append("\n");
-        }
-*/
+
         int total = completion.isEmpty() ? 0 : completion.get(completion.size() - 1);
-        sb.append("\nTotal completion time: ").append(completion).append(" minutes");
+        sb.append("\nTotal completion time: ").append(total).append(" minutes");
 
         JOptionPane.showMessageDialog(
                 this,

@@ -54,7 +54,7 @@ public class MainFrame extends JFrame {
         contentPanel = new JPanel(cardLayout);
         contentPanel.setBackground(APP_BG);
 
-        logger = new FileLogger("src/logs.txt");
+        logger = new DatabaseLogger();
         ResultServer resultServer = new ResultServer("RS-1");
         requestQueue = new VcRequestQueue();
         vcController = new VehicularCloudController("VC-1", "ACTIVE", resultServer, requestQueue);

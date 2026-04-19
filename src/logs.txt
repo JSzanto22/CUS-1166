@@ -1,0 +1,1 @@
+INFO 2026-04-09T14:18:14.327983-04:00[America/New_York] OWNER_ACCEPT ownerId=Owner1, vehicleMake=CarMake1, vehicleModel=CarModel1, vehicleYear=2021, residencyTime=1

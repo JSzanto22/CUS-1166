@@ -17,10 +17,12 @@ public class ClientForm {
     private JLabel statusLabel;
 
     private final Client client;
+    private final Logger logger;
     private volatile boolean awaitingDecision;
 
     public ClientForm(Client client, Logger logger) {
         this.client = client;
+        this.logger = logger;
         initComponents();
         clearButton.addActionListener(e -> clearFields());
         submitButton.addActionListener(e -> submitClientJob());
@@ -71,7 +73,7 @@ public class ClientForm {
         client.setJobDeadline(deadline);
 
         Job job = new Job(
-                clientID + "-" + System.currentTimeMillis(),
+                clientID,
                 "PENDING",
                 durationMinutes,
                 LocalDateTime.now(),

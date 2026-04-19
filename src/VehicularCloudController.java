@@ -174,6 +174,7 @@ public class VehicularCloudController extends ComputationNode{
 	            type,
 	            summary,
 	            acceptLog,
+	            obj,
 	            obj instanceof Job job ? job : null,
 	            () -> {
 	                try {

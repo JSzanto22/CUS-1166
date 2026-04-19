@@ -14,10 +14,12 @@ public class OwnerForm {
     private JLabel statusLabel;
 
     private final Owner owner;
+    private final Logger logger;
     private volatile boolean awaitingDecision;
 
     public OwnerForm(Owner owner, Logger logger) {
         this.owner = owner;
+        this.logger = logger;
         initComponents();
 
         clearButton.addActionListener(e -> clearFields());
@@ -63,7 +65,7 @@ public class OwnerForm {
         owner.setApproxResidencyTime(String.valueOf(residencyMinutes));
 
         Vehicle vehicle = new Vehicle(
-                ownerId + "-" + System.currentTimeMillis(),
+                ownerId,
                 "PENDING",
                 owner,
                 LocalDateTime.now(),

@@ -3,7 +3,9 @@ import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-
+/*
+ * DEPRECATED
+ */
 
 public class FileLogger implements Logger{
     private static final ZoneId EASTERN_TIME = ZoneId.of("America/New_York");
@@ -29,6 +31,9 @@ public class FileLogger implements Logger{
 			e.printStackTrace();
 		}
 	}
+	
+	public void info(Vehicle v) {}
+	public void info(Job j) {}
 
 	public void warning(String warning){
 		try {
