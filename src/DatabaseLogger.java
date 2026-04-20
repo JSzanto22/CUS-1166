@@ -18,7 +18,7 @@ public class DatabaseLogger implements Logger {
                 statement.executeUpdate("DROP TABLE IF EXISTS jobs");
                 statement.executeUpdate(
                         "CREATE TABLE vehicles ("
-                                + "vehicle_id VARCHAR(50) PRIMARY KEY, "
+                                + "vehicle_id INT AUTO_INCREMENT PRIMARY KEY, "
                                 + "logged_at VARCHAR(80) NOT NULL, "
                                 + "owner_id VARCHAR(50) NOT NULL, "
                                 + "vehicle_make VARCHAR(50) NOT NULL, "
@@ -28,7 +28,7 @@ public class DatabaseLogger implements Logger {
                 );
                 statement.executeUpdate(
                         "CREATE TABLE jobs ("
-                                + "job_id VARCHAR(50) PRIMARY KEY, "
+                                + "job_id INT AUTO_INCREMENT PRIMARY KEY, "
                                 + "logged_at VARCHAR(80) NOT NULL, "
                                 + "client_id VARCHAR(50) NOT NULL, "
                                 + "client_name VARCHAR(100) NOT NULL, "
@@ -90,8 +90,8 @@ public class DatabaseLogger implements Logger {
             residencyTime = owner.getApproxResidencyTime();
         }
 
-        return "INSERT INTO vehicles (vehicle_id, logged_at, owner_id, vehicle_make, vehicle_model, vehicle_year, residency_time) "
-                + "VALUES ('" + vehicle.getId() + "', '" + time() + "', '" + ownerId + "', '" + vehicleMake + "', '"
+        return "INSERT INTO vehicles (logged_at, owner_id, vehicle_make, vehicle_model, vehicle_year, residency_time) "
+                + "VALUES ('" + time() + "', '" + ownerId + "', '" + vehicleMake + "', '"
                 + vehicleModel + "', '" + vehicleYear + "', '" + residencyTime + "')";
     }
 
@@ -106,8 +106,8 @@ public class DatabaseLogger implements Logger {
             jobDeadline = job.getRequestedDeadline();
         }
 
-        return "INSERT INTO jobs (job_id, logged_at, client_id, client_name, job_duration, job_deadline) "
-                + "VALUES ('" + job.getJobId() + "', '" + time() + "', '" + clientId + "', '"
+        return "INSERT INTO jobs (logged_at, client_id, client_name, job_duration, job_deadline) "
+                + "VALUES ('" + time() + "', '" + clientId + "', '"
                 + clientName + "', " + job.getDuration() + ", '" + jobDeadline + "')";
     }
 
