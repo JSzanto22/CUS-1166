@@ -230,9 +230,10 @@ public class AdminPanel extends JPanel {
         List<Integer> completion = vcController.computeCompletionTime();
         StringBuilder sb = new StringBuilder();
         sb.append("Job ID\tDuration(min)\tCompletion(min)\n");
-
-        int total = completion.isEmpty() ? 0 : completion.get(completion.size() - 1);
-        sb.append("\nTotal completion time: ").append(total).append(" minutes");
+        
+        //This yields completion time in the form of a single value *NOT NEEDED*
+        //int total = completion.isEmpty() ? 0 : completion.get(completion.size() - 1);
+        sb.append("\nTotal completion time: ").append(completion).append(" minutes");
 
         JOptionPane.showMessageDialog(
                 this,
